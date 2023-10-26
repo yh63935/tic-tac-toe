@@ -1,0 +1,33 @@
+@import "reset.css";
+@import "normalize.css";
+
+/*Declare variables*/
+:root {
+    --border-size: 5px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+h1 {
+    text-align: center;
+}
+
+.game-container > div {
+    margin: 0 calc(-1 * var(--border-size)) calc(-1 * var(--border-size)) 0  ;
+    border: var(--border-size) solid black;
+}
+
+.game-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: 400px;
+    height: 400px;
+    margin: auto;
+}
+
+.input-container {
+    margin: 3rem auto;
+    width: fit-content;
+}
