@@ -17,6 +17,10 @@ h1 {
 .game-container > div {
     margin: 0 calc(-1 * var(--border-size)) calc(-1 * var(--border-size)) 0  ;
     border: var(--border-size) solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 5rem;
 }
 
 .game-container {
