@@ -22,7 +22,29 @@ function createPlayer(name, marker) {
     }
     return {name, marker, toggleActive, getActiveStatus }
 }
+const players = createPlayers();
+players[0].toggleActive();
 
+function getCurrentPlayer() {
+    // If playerOne has active status of true, current player is player one, else player two is the current player
+    let currentPlayer = players[0].getActiveStatus() ? players[0] : players[1];
+    console.log(currentPlayer.getActiveStatus, currentPlayer)
+    return currentPlayer;
+ }
+
+ function drawMarker() {
+    const gameBoardDivs = document.querySelectorAll(".game-container > div");
+    gameBoardDivs.forEach((div) => {
+        div.addEventListener('click', ()=> {
+            // Mark box based on current player marker
+            div.innerText = getCurrentPlayer().marker;
+            // Switch player
+            getCurrentPlayer().toggleActive();
+ 
+ 
+        })
+    })
+ }
  
  
 createPlayers();
