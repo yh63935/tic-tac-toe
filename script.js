@@ -59,7 +59,7 @@ function gameController() {
         // gmb.addMarker(0, 0, players[0])
         // gmb.addMarker(1, 0, players[0])
         // gmb.addMarker(2, 0, players[0])
-
+        // winLose();
 
     // Check if there is a win or lose
     const winLose = ()=> {
@@ -71,7 +71,6 @@ function gameController() {
         // Check for 3 in a row for row
         for(let row=0; row<board.length; row++) {
             let checkRow = [];
-            console.log(board.map((elem, index)=>elem.map((inner, i)=> board[index][i].getValue())))
             for(let column=0; column< board[row].length; column++) {
                 checkRow.push(board[row][column].getValue())
             }  
@@ -86,7 +85,6 @@ function gameController() {
             let checkCol = [];
             for(let row=0; row < board.length; row++) {
                 checkCol.push(board[row][column].getValue());
-                console.log(board[row][column].getValue())
             }
 
             if (checkCol.every(square=>square ==="X") || checkCol.every(square=>square ==="O")) {
@@ -96,34 +94,34 @@ function gameController() {
         }
 
         // Check for a diagonal win
+        let checkDiagonalOne = [];
         for(let row=0; row<board.length; row++) {
-            let checkDiagonalOne = [];
-            for(let column=0; column< row.length; row++) {
+            for(let column=0; column< board[row].length; column++) {
                 if(row===column) {
                     checkDiagonalOne.push(board[row][column].getValue())
                 }
             }  
-            if (checkDiagonalOne.every(square=>square==="X") || checkDiagonalOne.every(square=>square==="O")) {
-                console.log('It\'s a diagonal win')
-                return true;
-            } ;
         }
+        if (checkDiagonalOne.every(square=>square==="X") || checkDiagonalOne.every(square=>square==="O")) {
+            console.log('It\'s a diagonal win')
+            return true;
+        } ;
 
+        let checkDiagonalTwo = [];
         for(let row=0; row<board.length; row++) {
-            let checkDiagonalTwo = [];
-            for(let column=0; column< row.length; row++) {
+            for(let column=0; column< board[row].length; column++) {
                 if(row+column === board.length-1) {
                     checkDiagonalTwo.push(board[row][column].getValue())
                 }
             }  
-            if (checkDiagonalTwo.every(square=>square==="X") || checkDiagonalTwo.every(square=>square==="O")) {
-                console.log('It\'s a diagonal2 win')
-                return true;
-            } ;
         }
-
+        if (checkDiagonalTwo.every(square=>square==="X") || checkDiagonalTwo.every(square=>square==="O")) {
+            console.log('It\'s a diagonal2 win')
+            return true;
+        } ;
         
     }
+    winLose()
     // you can check if winLose is true each time you play a turn
     // Current Player makes turn --> check for Win --> if true, current player must be winner --> else switch turn
     // something like if(winLose) currentPlayer().name, then switch turn??
@@ -143,7 +141,6 @@ function gameController() {
                 currentPlayer = player;
             } 
         }
-        console.log("Current player" + currentPlayer.getActiveStatus(), currentPlayer.name)
         return currentPlayer;
      }
 
@@ -158,8 +155,8 @@ function gameController() {
     // Play a round of tictactoe
     const playRound = (row, column) => {
         gmb.addMarker(row, column, getCurrentPlayer())
+        gmb.printBoard();
         if (winLose()) {
-            console.log("They win");
             return;
         }
         switchPlayer();
@@ -168,10 +165,8 @@ function gameController() {
 }
 
 const game = gameController();
-game.playRound(0,0)
-game.playRound(0,1)
 
-game.playRound(0,2)
+
 
 function createPlayers() {
     const inputOne = document.getElementById('player1');
