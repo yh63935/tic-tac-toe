@@ -17,7 +17,7 @@ function gameBoard() {
         }
 
         if (checkSquareAvailable()) {
-            board[row][column].addMarker(player)
+            board[row][column].playerMarker(player)
         } else {
             console.log("Pick another square")
         }
@@ -33,22 +33,22 @@ function gameBoard() {
 }
 
 const players = createPlayers();
-players[0].toggleActive();
 
 
-gameController().winLose();
 // Create individual squares on the board
 function square() {
     let value = "";
 
-    const addMarker = (player) => {
+    // Get the appropriate player marker to change the square
+    const playerMarker = (player) => {
         value = player.marker;
-        console.log(player.marker)
+
+
     }
     const getValue = () => {
         return value;
     }
-    return {addMarker, getValue}
+    return {playerMarker, getValue}
 }
 
 // Gamecontroller manages game logic
@@ -56,9 +56,6 @@ function gameController() {
     // Switch players
     // Play round
         const gmb = gameBoard();
-        gmb.addMarker(0, 2, players[0])
-        gmb.addMarker(1, 1, players[0])
-        gmb.addMarker(2, 0, players[0])
         // gmb.addMarker(0, 0, players[0])
         // gmb.addMarker(1, 0, players[0])
         // gmb.addMarker(2, 0, players[0])
@@ -77,11 +74,8 @@ function gameController() {
             console.log(board.map((elem, index)=>elem.map((inner, i)=> board[index][i].getValue())))
             for(let column=0; column< board[row].length; column++) {
                 checkRow.push(board[row][column].getValue())
-                console.log("test")
             }  
             if (checkRow.every(square=>square==="X") || checkRow.every(square=>square==="O")) {
-                console.log(checkRow)
-
                 console.log('It\'s a row win')
                 return true;
             } ;
@@ -130,9 +124,55 @@ function gameController() {
 
         
     }
-    return {winLose}
+    // you can check if winLose is true each time you play a turn
+    // Current Player makes turn --> check for Win --> if true, current player must be winner --> else switch turn
+    // something like if(winLose) currentPlayer().name, then switch turn??
+    // another alternative is to return the player name with the associated marker from win lose function itself
+    // then create a function that accepts the currentPlayer() as a player parameter
 
+    // Get the current player
+
+    // Start off with the first player being the current player, set active status to true
+    players[0].toggleActive();
+
+    const getCurrentPlayer = () => {
+        // If playerOne has active status of true, current player is player one, else player two is the current player
+        let currentPlayer;
+        for (let player of players) {
+            if(player.getActiveStatus()) {
+                currentPlayer = player;
+            } 
+        }
+        console.log("Current player" + currentPlayer.getActiveStatus(), currentPlayer.name)
+        return currentPlayer;
+     }
+
+    // Switch player turn
+    const switchPlayer = () => {
+        const currentPlayer = getCurrentPlayer();
+        const otherPlayer = players.find(player=>player!==currentPlayer);
+        currentPlayer.toggleActive();
+        otherPlayer.toggleActive();
+
+    }
+    // Play a round of tictactoe
+    const playRound = (row, column) => {
+        gmb.addMarker(row, column, getCurrentPlayer())
+        if (winLose()) {
+            console.log("They win");
+            return;
+        }
+        switchPlayer();
+    }
+    return {playRound}
 }
+
+const game = gameController();
+game.playRound(0,0)
+game.playRound(0,1)
+
+game.playRound(0,2)
+
 function createPlayers() {
     const inputOne = document.getElementById('player1');
     const inputTwo = document.getElementById('player2');
@@ -143,7 +183,6 @@ function createPlayers() {
     players.push(playerOne);
     const playerTwo = createPlayer("PlayerTwo", "O");
     players.push(playerTwo)
-    console.log(players)
     return players;
 }
 
@@ -159,12 +198,7 @@ function createPlayer(name, marker) {
 }
 
 
-function getCurrentPlayer() {
-    // If playerOne has active status of true, current player is player one, else player two is the current player
-    let currentPlayer = players[0].getActiveStatus() ? players[0] : players[1];
-    console.log(currentPlayer.getActiveStatus, currentPlayer)
-    return currentPlayer;
- }
+
 
  function drawMarker() {
     const gameBoardDivs = document.querySelectorAll(".game-container > div");
@@ -180,6 +214,3 @@ function getCurrentPlayer() {
     })
  }
  
- 
-createPlayers();
-drawMarker();
