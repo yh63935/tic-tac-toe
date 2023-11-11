@@ -60,6 +60,7 @@ function gameController() {
         // gmb.addMarker(1, 0, players[0])
         // gmb.addMarker(2, 0, players[0])
         // winLose();
+    const board = gmb.getBoard();
 
     // Check if there is a win or lose
     const winLose = ()=> {
@@ -67,7 +68,6 @@ function gameController() {
         // board[0][0], board[0][1], board[0][2] are the same
         // board[1][0], board[1][1], board[1][2] are the same
         // board[2][0], board[2][1], board[1][2] are the same
-        const board = gmb.getBoard();
         // Check for 3 in a row for row
         for(let row=0; row<board.length; row++) {
             let checkRow = [];
@@ -121,7 +121,25 @@ function gameController() {
         } ;
         
     }
+
+    const checkTie = () => {
+        const checkAllSquaresEmpty = () => {
+            const found = board.some((row, index) => row[index].getValue()==="")
+
+            // console.log("Is there empty square?" + found )
+            // if found is true, all squares are not empty, so return false
+            return !found;
+        }
+        // If there are no more empty squares and nobody won, then it is a tie
+        return (checkAllSquaresEmpty())
+    }
     winLose()
+
+    // If someone has won or the game is tied, the game is over
+    const gameOver = ()=> {
+        return winLose() || checkTie();
+        
+    }
     // you can check if winLose is true each time you play a turn
     // Current Player makes turn --> check for Win --> if true, current player must be winner --> else switch turn
     // something like if(winLose) currentPlayer().name, then switch turn??
@@ -156,15 +174,27 @@ function gameController() {
     const playRound = (row, column) => {
         gmb.addMarker(row, column, getCurrentPlayer())
         gmb.printBoard();
-        if (winLose()) {
+        switchPlayer();
+        console.log(gameOver());
+        if (gameOver()) {
+        console.log("Game Over");
             return;
         }
-        switchPlayer();
     }
     return {playRound}
 }
 
 const game = gameController();
+game.playRound(0,2) //X
+game.playRound(0,0) //O
+game.playRound(1,0) //X
+
+game.playRound(0,1) //O
+game.playRound(1,1) //X
+game.playRound(1,2) //O
+game.playRound(2,1) //X
+game.playRound(2,0) //O
+game.playRound(2,2) //X
 
 
 
