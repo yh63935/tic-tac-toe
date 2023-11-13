@@ -9,6 +9,8 @@ function gameBoard() {
     }
     const getBoard = ()=> board;
     // Add marker to array
+
+
     const addMarker = (row, column, player) => {
         // check if the square is available, if yes, fill square with marker
         // if no, stop
@@ -43,25 +45,21 @@ function square() {
     const playerMarker = (player) => {
         value = player.marker;
 
+        console.log(player.marker)
 
     }
+
+
     const getValue = () => {
         return value;
     }
     return {playerMarker, getValue}
 }
 
-// Gamecontroller manages game logic
-function gameController() {
-    // Switch players
-    // Play round
-        const gmb = gameBoard();
-        // gmb.addMarker(0, 0, players[0])
-        // gmb.addMarker(1, 0, players[0])
-        // gmb.addMarker(2, 0, players[0])
-        // winLose();
-    const board = gmb.getBoard();
 
+// Gamecontroller manages game logic
+function gameController(gameBoard) {
+    const board = gameBoard.getBoard();
     // Check if there is a win or lose
     const winLose = ()=> {
         // Win cases
@@ -172,8 +170,8 @@ function gameController() {
     }
     // Play a round of tictactoe
     const playRound = (row, column) => {
-        gmb.addMarker(row, column, getCurrentPlayer())
-        gmb.printBoard();
+        gameBoard.addMarker(row, column, getCurrentPlayer())
+        gameBoard.printBoard();
         switchPlayer();
         console.log(gameOver());
         if (gameOver()) {
