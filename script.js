@@ -42,12 +42,7 @@ function gameBoard() {
     const printBoard = () => {
         console.log(board.map(row=>row.map(square=>square.getValue())))
     }
-
-<<<<<<< Updated upstream
-    return {addMarker, printBoard}
-=======
     return {getBoard, addMarker, printBoard, resetBoard}
->>>>>>> Stashed changes
 
 }
 
