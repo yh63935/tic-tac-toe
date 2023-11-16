@@ -180,7 +180,8 @@ function gameController(gameBoard) {
         switchPlayer();
         console.log(gameOver());
         if (gameOver()) {
-        console.log("Game Over");
+            displayController.deactivate();
+            console.log("Game Over");
             return;
         }
     }
@@ -228,12 +229,28 @@ function createPlayer(name, marker) {
 
 
 // Display game on user interface
-const displayController = function() {
+const displayController = (function() {
     const gameBoardDivs = document.querySelectorAll(".game-container > div");
     const newGameBoard = gameBoard();
     const game = new gameController(newGameBoard);
  
- 
+    const activate = () => {
+        gameBoardDivs.forEach(div => {
+            div.style.pointerEvents = 'auto';
+        });
+    };
+
+    const deactivate = () =>{
+        gameBoardDivs.forEach(div=> {
+            div.style.pointerEvents = 'none';
+        })
+    };
+
+    const clear = () => {
+        gameBoardDivs.forEach(div=> {
+            div.innerText = "";
+        })
+    }
     const renderBoard = () => {
         function getDivIndex() {
             gameBoardDivs.forEach((elem, i)=> {
@@ -264,16 +281,14 @@ const displayController = function() {
         })
     }
     renderBoard()
- 
- 
- 
- 
- }
-   
- 
- 
- displayController();
- 
+    return {
+        activate,
+        deactivate, 
+        clear
+    }
+
+ })();
+    
  
  
  
