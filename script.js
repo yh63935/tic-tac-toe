@@ -180,24 +180,25 @@ function gameController(gameBoard) {
         switchPlayer();
         console.log(gameOver());
         if (gameOver()) {
-        console.log("Game Over");
+            displayController.deactivate();
+            console.log("Game Over");
             return;
         }
     }
     return {playRound}
 }
 
-const game = gameController();
-game.playRound(0,2) //X
-game.playRound(0,0) //O
-game.playRound(1,0) //X
+// const game = gameController();
+// game.playRound(0,2) //X
+// game.playRound(0,0) //O
+// game.playRound(1,0) //X
 
-game.playRound(0,1) //O
-game.playRound(1,1) //X
-game.playRound(1,2) //O
-game.playRound(2,1) //X
-game.playRound(2,0) //O
-game.playRound(2,2) //X
+// game.playRound(0,1) //O
+// game.playRound(1,1) //X
+// game.playRound(1,2) //O
+// game.playRound(2,1) //X
+// game.playRound(2,0) //O
+// game.playRound(2,2) //X
 
 
 
@@ -227,18 +228,68 @@ function createPlayer(name, marker) {
 
 
 
-
- function drawMarker() {
+// Display game on user interface
+const displayController = (function() {
     const gameBoardDivs = document.querySelectorAll(".game-container > div");
-    gameBoardDivs.forEach((div) => {
-        div.addEventListener('click', ()=> {
-            // Mark box based on current player marker
-            div.innerText = getCurrentPlayer().marker;
-            // Switch player
-            getCurrentPlayer().toggleActive();
+    const newGameBoard = gameBoard();
+    const game = new gameController(newGameBoard);
  
- 
+    const activate = () => {
+        gameBoardDivs.forEach(div => {
+            div.style.pointerEvents = 'auto';
+        });
+    };
+
+    const deactivate = () =>{
+        gameBoardDivs.forEach(div=> {
+            div.style.pointerEvents = 'none';
         })
-    })
- }
+    };
+
+    const clear = () => {
+        gameBoardDivs.forEach(div=> {
+            div.innerText = "";
+        })
+    }
+    const renderBoard = () => {
+        function getDivIndex() {
+            gameBoardDivs.forEach((elem, i)=> {
+                elem.dataset.rowIndex = Math.floor(i/3)
+            })
+            gameBoardDivs.forEach((elem, i)=> {
+                elem.dataset.colIndex = i%3
+            })
+        }
+        getDivIndex();
+ 
+ 
+        gameBoardDivs.forEach((div) => {
+            div.addEventListener('click', ()=> {
+                // divArray = [0, 1,2,3,4,5,6,7,8]
+                // play round for each div clicked
+                // determine which div corresponds to which row number and column number to play round
+                // div.dataset.rowIndex = row;
+                // div.dataset.colIndex = col;
+ 
+ 
+                console.log(div.dataset.rowIndex, div.dataset.colIndex)
+                game.playRound(div.dataset.rowIndex, div.dataset.colIndex)
+               
+                // Mark box based on current player marker
+                div.innerText = newGameBoard.getBoard()[div.dataset.rowIndex][div.dataset.colIndex].getValue();
+            })
+        })
+    }
+    renderBoard()
+    return {
+        activate,
+        deactivate, 
+        clear
+    }
+
+ })();
+    
+ 
+ 
+ 
  
