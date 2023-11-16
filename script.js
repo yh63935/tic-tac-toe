@@ -11,19 +11,10 @@ function gameBoard() {
         }
         return newBoard;
     }
-
-    const board = createBoard();
-
-    // Resets board
-    const resetBoard = () => {
-        board = createBoard()
-    };
-
-    // Get current state of board
     const getBoard = ()=> board;
+    // Add marker to array
 
-    // Add marker to board
->>>>>>> Stashed changes
+
     const addMarker = (row, column, player) => {
         // check if the square is available, if yes, fill square with marker
         // if no, stop
@@ -32,7 +23,7 @@ function gameBoard() {
         }
 
         if (checkSquareAvailable()) {
-            board[row][column].addMarker(player)
+            board[row][column].playerMarker(player)
         } else {
             console.log("Pick another square")
         }
@@ -42,34 +33,164 @@ function gameBoard() {
     const printBoard = () => {
         console.log(board.map(row=>row.map(square=>square.getValue())))
     }
-    return {getBoard, addMarker, printBoard, resetBoard}
+
+    return {getBoard, addMarker, printBoard}
 
 }
 
 // Create new players
 const players = createPlayers();
-players[0].toggleActive();
-const gmb = gameBoard();
-gmb.addMarker(0, 1, players[0])
-gmb.printBoard();
+
 
 // Create individual squares on the board
 function square() {
     let value = "";
 
-    const addMarker = (player) => {
+    // Get the appropriate player marker to change the square
+    const playerMarker = (player) => {
         value = player.marker;
-<<<<<<< Updated upstream
+
         console.log(player.marker)
-=======
->>>>>>> Stashed changes
+
     }
 
     // Get the marker value of the square
     const getValue = () => {
         return value;
     }
-    return {addMarker, getValue}
+    return {playerMarker, getValue}
+}
+
+
+// Gamecontroller manages game logic
+function gameController(gameBoard) {
+    const board = gameBoard.getBoard();
+    // Check if there is a win or lose
+    const winLose = ()=> {
+        // Win cases
+        // board[0][0], board[0][1], board[0][2] are the same
+        // board[1][0], board[1][1], board[1][2] are the same
+        // board[2][0], board[2][1], board[1][2] are the same
+        // Check for 3 in a row for row
+        for(let row=0; row<board.length; row++) {
+            let checkRow = [];
+            for(let column=0; column< board[row].length; column++) {
+                checkRow.push(board[row][column].getValue())
+            }  
+            if (checkRow.every(square=>square==="X") || checkRow.every(square=>square==="O")) {
+                console.log('It\'s a row win')
+                return true;
+            } ;
+        }
+
+        // Check for 3 in a row for column
+        for (let column=0; column< 3; column++) {
+            let checkCol = [];
+            for(let row=0; row < board.length; row++) {
+                checkCol.push(board[row][column].getValue());
+            }
+
+            if (checkCol.every(square=>square ==="X") || checkCol.every(square=>square ==="O")) {
+                console.log('Column win')
+                return true;
+            } 
+        }
+
+        // Check for a diagonal win
+        let checkDiagonalOne = [];
+        for(let row=0; row<board.length; row++) {
+            for(let column=0; column< board[row].length; column++) {
+                if(row===column) {
+                    checkDiagonalOne.push(board[row][column].getValue())
+                }
+            }  
+        }
+        if (checkDiagonalOne.every(square=>square==="X") || checkDiagonalOne.every(square=>square==="O")) {
+            console.log('It\'s a diagonal win')
+            return true;
+        } ;
+
+        let checkDiagonalTwo = [];
+        for(let row=0; row<board.length; row++) {
+            for(let column=0; column< board[row].length; column++) {
+                if(row+column === board.length-1) {
+                    checkDiagonalTwo.push(board[row][column].getValue())
+                }
+            }  
+        }
+        if (checkDiagonalTwo.every(square=>square==="X") || checkDiagonalTwo.every(square=>square==="O")) {
+            console.log('It\'s a diagonal2 win')
+            return true;
+        } ;
+        
+    }
+
+    const checkTie = () => {
+        const noAvailableSquare = () => {
+            // if found is false that means, there are no available squares
+            const found = board.some((row)=> {
+                return row.some(index=>index.getValue()==="")
+            })
+        
+            console.log("Has an empty square been found" + found)
+            return !found;
+        }
+        // If there are no more empty squares and nobody won, then it is a tie
+        console.log("Are all squares filled?" + noAvailableSquare())
+        return (noAvailableSquare())
+    }
+    winLose()
+
+    // If someone has won or the game is tied, the game is over
+    const gameOver = ()=> {
+        console.log("WinLose " + winLose())
+        console.log("checktie" + checkTie())
+        return winLose() || checkTie();
+        
+    }
+    // you can check if winLose is true each time you play a turn
+    // Current Player makes turn --> check for Win --> if true, current player must be winner --> else switch turn
+    // something like if(winLose) currentPlayer().name, then switch turn??
+    // another alternative is to return the player name with the associated marker from win lose function itself
+    // then create a function that accepts the currentPlayer() as a player parameter
+
+    // Get the current player
+
+    // Start off with the first player being the current player, set active status to true
+    players[0].toggleActive();
+
+    const getCurrentPlayer = () => {
+        // If playerOne has active status of true, current player is player one, else player two is the current player
+        let currentPlayer;
+        for (let player of players) {
+            if(player.getActiveStatus()) {
+                currentPlayer = player;
+            } 
+        }
+        return currentPlayer;
+     }
+
+    // Switch player turn
+    const switchPlayer = () => {
+        const currentPlayer = getCurrentPlayer();
+        const otherPlayer = players.find(player=>player!==currentPlayer);
+        currentPlayer.toggleActive();
+        otherPlayer.toggleActive();
+
+    }
+    // Play a round of tictactoe
+    const playRound = (row, column) => {
+        gameBoard.addMarker(row, column, getCurrentPlayer())
+        gameBoard.printBoard();
+        switchPlayer();
+        console.log(gameOver());
+        if (gameOver()) {
+            displayController.deactivate();
+            console.log("Game Over");
+            return;
+        }
+    }
+    return {playRound}
 }
 <<<<<<< Updated upstream
 =======
@@ -220,7 +341,6 @@ function createPlayers() {
     players.push(playerOne);
     const playerTwo = createPlayer("PlayerTwo", "O");
     players.push(playerTwo)
-    console.log(players)
     return players;
 }
 
@@ -244,14 +364,29 @@ function getCurrentPlayer() {
     return currentPlayer;
  }
 
- function drawMarker() {
-=======
-const displayController = function() {
->>>>>>> Stashed changes
+// Display game on user interface
+const displayController = (function() {
     const gameBoardDivs = document.querySelectorAll(".game-container > div");
     const newGameBoard = gameBoard();
     const game = new gameController(newGameBoard);
+ 
+    const activate = () => {
+        gameBoardDivs.forEach(div => {
+            div.style.pointerEvents = 'auto';
+        });
+    };
 
+    const deactivate = () =>{
+        gameBoardDivs.forEach(div=> {
+            div.style.pointerEvents = 'none';
+        })
+    };
+
+    const clear = () => {
+        gameBoardDivs.forEach(div=> {
+            div.innerText = "";
+        })
+    }
     const renderBoard = () => {
         function getDivIndex() {
             gameBoardDivs.forEach((elem, i)=> {
@@ -262,7 +397,8 @@ const displayController = function() {
             })
         }
         getDivIndex();
-
+ 
+ 
         gameBoardDivs.forEach((div) => {
             div.addEventListener('click', ()=> {
                 // divArray = [0, 1,2,3,4,5,6,7,8]
@@ -270,17 +406,27 @@ const displayController = function() {
                 // determine which div corresponds to which row number and column number to play round
                 // div.dataset.rowIndex = row;
                 // div.dataset.colIndex = col;
-
+ 
+ 
                 console.log(div.dataset.rowIndex, div.dataset.colIndex)
                 game.playRound(div.dataset.rowIndex, div.dataset.colIndex)
-                
+               
                 // Mark box based on current player marker
                 div.innerText = newGameBoard.getBoard()[div.dataset.rowIndex][div.dataset.colIndex].getValue();
             })
         })
-<<<<<<< Updated upstream
-    })
- }
+    }
+    renderBoard()
+    return {
+        activate,
+        deactivate, 
+        clear
+    }
+
+ })();
+    
+ 
+ 
  
  
 createPlayers();
