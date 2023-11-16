@@ -121,20 +121,25 @@ function gameController(gameBoard) {
     }
 
     const checkTie = () => {
-        const checkAllSquaresEmpty = () => {
-            const found = board.some((row, index) => row[index].getValue()==="")
-
-            // console.log("Is there empty square?" + found )
-            // if found is true, all squares are not empty, so return false
+        const noAvailableSquare = () => {
+            // if found is false that means, there are no available squares
+            const found = board.some((row)=> {
+                return row.some(index=>index.getValue()==="")
+            })
+        
+            console.log("Has an empty square been found" + found)
             return !found;
         }
         // If there are no more empty squares and nobody won, then it is a tie
-        return (checkAllSquaresEmpty())
+        console.log("Are all squares filled?" + noAvailableSquare())
+        return (noAvailableSquare())
     }
     winLose()
 
     // If someone has won or the game is tied, the game is over
     const gameOver = ()=> {
+        console.log("WinLose " + winLose())
+        console.log("checktie" + checkTie())
         return winLose() || checkTie();
         
     }
