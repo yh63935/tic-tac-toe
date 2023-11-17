@@ -1,19 +1,22 @@
 // Gameboard that represents the board in an array
-function gameBoard() {
-    // Create a new board
-    const createBoard = () => {
-        const newBoard = [];
-        for (let row = 0; row < 3; row++) {
-            newBoard[row] = [];
-            for(let column = 0; column < 3; column++) {
-                newBoard[row].push(square());
-            }
+const gameBoard = (() => {
+    const board = [];
+    for (let row = 0; row < 3; row++) {
+        board[row] = [];
+        for(let column = 0; column < 3; column++) {
+            board[row].push(square());
         }
-        return newBoard;
     }
     const getBoard = ()=> board;
     // Add marker to array
 
+    const clearBoard = ()=> {
+        board.forEach(row=> {
+            row.forEach(square => {
+                square.clear();
+            })
+        })
+    };
 
     const addMarker = (row, column, player) => {
         // check if the square is available, if yes, fill square with marker
@@ -34,37 +37,44 @@ function gameBoard() {
         console.log(board.map(row=>row.map(square=>square.getValue())))
     }
 
-    return {getBoard, addMarker, printBoard}
+    // Create individual squares on the board
+    function square() {
+        let value = "";
+
+        // Get the appropriate player marker to change the square
+        const playerMarker = (player) => {
+            value = player.marker;
+
+            // console.log(player.marker)
+
+        };
+
+        const clear = () => {
+            value = "";
+        };
+
+        const getValue = () => {
+            return value;
+        }
+        return {playerMarker, getValue, clear}
+    }
+    return {getBoard, addMarker, printBoard, clearBoard}
 
 }
 
+
+
+)();
 // Create new players
 const players = createPlayers();
 
 
-// Create individual squares on the board
-function square() {
-    let value = "";
-
-    // Get the appropriate player marker to change the square
-    const playerMarker = (player) => {
-        value = player.marker;
-
-        console.log(player.marker)
-
-    }
-
-
-    const getValue = () => {
-        return value;
-    }
-    return {playerMarker, getValue}
-}
-
-
 // Gamecontroller manages game logic
-function gameController(gameBoard) {
+const gameController = (() => {
     const board = gameBoard.getBoard();
+    
+    // Determines if the game is active or not
+    let isGameActive = false;
     // Check if there is a win or lose
     const winLose = ()=> {
         // Win cases
@@ -132,22 +142,31 @@ function gameController(gameBoard) {
                 return row.some(index=>index.getValue()==="")
             })
         
-            console.log("Has an empty square been found" + found)
+            // console.log("Has an empty square been found" + found)
             return !found;
         }
         // If there are no more empty squares and nobody won, then it is a tie
-        console.log("Are all squares filled?" + noAvailableSquare())
+        // console.log("Are all squares filled?" + noAvailableSquare())
         return (noAvailableSquare())
     }
     winLose()
 
     // If someone has won or the game is tied, the game is over
     const gameOver = ()=> {
-        console.log("WinLose " + winLose())
-        console.log("checktie" + checkTie())
+        console.log("is gameover" + (winLose() || checkTie()));
         return winLose() || checkTie();
-        
     }
+    // If gameOver is true, then isGameActive is false
+    const updateGameStatus = () => {
+        if(gameOver()) {
+            isGameActive = false;
+        }
+    };
+
+    const getIsGameActive = ()=> {
+        return isGameActive;
+    };
+
     // you can check if winLose is true each time you play a turn
     // Current Player makes turn --> check for Win --> if true, current player must be winner --> else switch turn
     // something like if(winLose) currentPlayer().name, then switch turn??
@@ -178,20 +197,37 @@ function gameController(gameBoard) {
         otherPlayer.toggleActive();
 
     }
+    // Start new game
+    const startGame = () => {
+        isGameActive = true;
+        console.log("startgame" + isGameActive)
+        gameBoard.printBoard();
+        gameBoard.clearBoard();
+        gameBoard.printBoard();
+
+
+        displayController.clear();
+        displayController.activate();
+    };
+
     // Play a round of tictactoe
     const playRound = (row, column) => {
         gameBoard.addMarker(row, column, getCurrentPlayer())
         gameBoard.printBoard();
         switchPlayer();
-        console.log(gameOver());
-        if (gameOver()) {
+        updateGameStatus();
+        // console.log(gameOver());
+        if (!getIsGameActive()) {
             displayController.deactivate();
             console.log("Game Over");
             return;
         }
-    }
-    return {playRound}
-}
+    };
+
+    
+
+    return {playRound, startGame}
+})();
 
 // const game = gameController();
 // game.playRound(0,2) //X
@@ -236,9 +272,8 @@ function createPlayer(name, marker) {
 // Display game on user interface
 const displayController = (function() {
     const gameBoardDivs = document.querySelectorAll(".game-container > div");
-    const newGameBoard = gameBoard();
-    const game = new gameController(newGameBoard);
- 
+    const startBtn = document.querySelector('.start');
+    
     const activate = () => {
         gameBoardDivs.forEach(div => {
             div.style.pointerEvents = 'auto';
@@ -256,17 +291,18 @@ const displayController = (function() {
             div.innerText = "";
         })
     }
+
+    startBtn.addEventListener("click", gameController.startGame);
+
     const renderBoard = () => {
-        function getDivIndex() {
+        (function getDivIndex() {
             gameBoardDivs.forEach((elem, i)=> {
                 elem.dataset.rowIndex = Math.floor(i/3)
             })
             gameBoardDivs.forEach((elem, i)=> {
                 elem.dataset.colIndex = i%3
             })
-        }
-        getDivIndex();
- 
+        })();
  
         gameBoardDivs.forEach((div) => {
             div.addEventListener('click', ()=> {
@@ -277,11 +313,10 @@ const displayController = (function() {
                 // div.dataset.colIndex = col;
  
  
-                console.log(div.dataset.rowIndex, div.dataset.colIndex)
-                game.playRound(div.dataset.rowIndex, div.dataset.colIndex)
-               
+                // console.log(div.dataset.rowIndex, div.dataset.colIndex)
+                gameController.playRound(div.dataset.rowIndex, div.dataset.colIndex)
                 // Mark box based on current player marker
-                div.innerText = newGameBoard.getBoard()[div.dataset.rowIndex][div.dataset.colIndex].getValue();
+                div.innerText = gameBoard.getBoard()[div.dataset.rowIndex][div.dataset.colIndex].getValue();
             })
         })
     }
