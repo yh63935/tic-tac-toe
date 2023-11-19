@@ -19,8 +19,7 @@ const gameBoard = (() => {
     };
 
     const addMarker = (row, column, player) => {
-        // check if the square is available, if yes, fill square with marker
-        // if no, stop
+        // Fill square with marker if available
         const checkSquareAvailable = () => {
             return board[row][column].getValue() === "";
         }
@@ -44,9 +43,7 @@ const gameBoard = (() => {
         // Get the appropriate player marker to change the square
         const playerMarker = (player) => {
             value = player.marker;
-
             // console.log(player.marker)
-
         };
 
         const clear = () => {
@@ -56,8 +53,10 @@ const gameBoard = (() => {
         const getValue = () => {
             return value;
         }
+
         return {playerMarker, getValue, clear}
     }
+    
     return {getBoard, addMarker, printBoard, clearBoard}
 
 }
@@ -68,7 +67,6 @@ const gameBoard = (() => {
 // Create new players
 const players = createPlayers();
 
-
 // Gamecontroller manages game logic
 const gameController = (() => {
     const board = gameBoard.getBoard();
@@ -77,10 +75,7 @@ const gameController = (() => {
     let isGameActive = false;
     // Check if there is a win or lose
     const winLose = ()=> {
-        // Win cases
-        // board[0][0], board[0][1], board[0][2] are the same
-        // board[1][0], board[1][1], board[1][2] are the same
-        // board[2][0], board[2][1], board[1][2] are the same
+
         // Check for 3 in a row for row
         for(let row=0; row<board.length; row++) {
             let checkRow = [];
@@ -133,29 +128,30 @@ const gameController = (() => {
             return true;
         } ;
         
-    }
+    };
 
+    // Check if there is a tie
     const checkTie = () => {
         const noAvailableSquare = () => {
-            // if found is false that means, there are no available squares
+            // Ff found is false that means there are no available squares
             const found = board.some((row)=> {
                 return row.some(index=>index.getValue()==="")
             })
-        
+    
             // console.log("Has an empty square been found" + found)
             return !found;
         }
         // If there are no more empty squares and nobody won, then it is a tie
         // console.log("Are all squares filled?" + noAvailableSquare())
         return (noAvailableSquare())
-    }
-    winLose()
+    };
 
     // If someone has won or the game is tied, the game is over
     const gameOver = ()=> {
         console.log("is gameover" + (winLose() || checkTie()));
         return winLose() || checkTie();
-    }
+    };
+
     // If gameOver is true, then isGameActive is false
     const updateGameStatus = () => {
         if(gameOver()) {
@@ -163,21 +159,15 @@ const gameController = (() => {
         }
     };
 
+    // Get isGameActive status
     const getIsGameActive = ()=> {
         return isGameActive;
     };
 
-    // you can check if winLose is true each time you play a turn
-    // Current Player makes turn --> check for Win --> if true, current player must be winner --> else switch turn
-    // something like if(winLose) currentPlayer().name, then switch turn??
-    // another alternative is to return the player name with the associated marker from win lose function itself
-    // then create a function that accepts the currentPlayer() as a player parameter
-
-    // Get the current player
-
-    // Start off with the first player being the current player, set active status to true
+    // Set playerOne active status to true
     players[0].toggleActive();
 
+    // Get current player
     const getCurrentPlayer = () => {
         // If playerOne has active status of true, current player is player one, else player two is the current player
         let currentPlayer;
@@ -187,62 +177,50 @@ const gameController = (() => {
             } 
         }
         return currentPlayer;
-     }
+     };
 
-    // Switch player turn
+    // Switch players for each turn
     const switchPlayer = () => {
         const currentPlayer = getCurrentPlayer();
         const otherPlayer = players.find(player=>player!==currentPlayer);
         currentPlayer.toggleActive();
         otherPlayer.toggleActive();
 
-    }
-    // Start new game
+    };
+
+    // Start game and restarts game regardless of isGameActive state
     const startGame = () => {
         isGameActive = true;
         console.log("startgame" + isGameActive)
         gameBoard.printBoard();
         gameBoard.clearBoard();
         gameBoard.printBoard();
-
-
         displayController.clear();
         displayController.activate();
     };
 
     // Play a round of tictactoe
     const playRound = (row, column) => {
+        if (!getIsGameActive()) {
+            displayController.deactivate();
+            return;
+        }
         gameBoard.addMarker(row, column, getCurrentPlayer())
         gameBoard.printBoard();
         switchPlayer();
         updateGameStatus();
         // console.log(gameOver());
-        if (!getIsGameActive()) {
-            displayController.deactivate();
+        if (gameOver()) {
             console.log("Game Over");
             return;
         }
     };
 
-    
-
     return {playRound, startGame}
+
 })();
 
-// const game = gameController();
-// game.playRound(0,2) //X
-// game.playRound(0,0) //O
-// game.playRound(1,0) //X
-
-// game.playRound(0,1) //O
-// game.playRound(1,1) //X
-// game.playRound(1,2) //O
-// game.playRound(2,1) //X
-// game.playRound(2,0) //O
-// game.playRound(2,2) //X
-
-
-
+// Create all players
 function createPlayers() {
     const inputOne = document.getElementById('player1');
     const inputTwo = document.getElementById('player2');
@@ -254,8 +232,9 @@ function createPlayers() {
     const playerTwo = createPlayer("PlayerTwo", "O");
     players.push(playerTwo)
     return players;
-}
+};
 
+// Create each individual player 
 function createPlayer(name, marker) {
     let active = false;
     const toggleActive = ()=> {
@@ -265,27 +244,28 @@ function createPlayer(name, marker) {
         return active
     }
     return {name, marker, toggleActive, getActiveStatus }
-}
+};
 
-
-
-// Display game on user interface
-const displayController = (function() {
+// Display controller dislays game on user interface
+const displayController = (() => {
     const gameBoardDivs = document.querySelectorAll(".game-container > div");
     const startBtn = document.querySelector('.start');
     
+    // Allow edits of gameboard divs
     const activate = () => {
         gameBoardDivs.forEach(div => {
             div.style.pointerEvents = 'auto';
         });
     };
 
-    const deactivate = () =>{
+    // Prevent gameboard divs from being edited
+    const deactivate = () => {
         gameBoardDivs.forEach(div=> {
             div.style.pointerEvents = 'none';
         })
     };
 
+    // Clear gameboard divs
     const clear = () => {
         gameBoardDivs.forEach(div=> {
             div.innerText = "";
@@ -294,6 +274,7 @@ const displayController = (function() {
 
     startBtn.addEventListener("click", gameController.startGame);
 
+    // Render board with player markers
     const renderBoard = () => {
         (function getDivIndex() {
             gameBoardDivs.forEach((elem, i)=> {
@@ -306,8 +287,6 @@ const displayController = (function() {
  
         gameBoardDivs.forEach((div) => {
             div.addEventListener('click', ()=> {
-                // divArray = [0, 1,2,3,4,5,6,7,8]
-                // play round for each div clicked
                 // determine which div corresponds to which row number and column number to play round
                 // div.dataset.rowIndex = row;
                 // div.dataset.colIndex = col;
@@ -320,7 +299,9 @@ const displayController = (function() {
             })
         })
     }
-    renderBoard()
+
+    renderBoard();
+
     return {
         activate,
         deactivate, 
