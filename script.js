@@ -24,10 +24,13 @@ const gameBoard = (() => {
             return board[row][column].getValue() === "";
         }
 
-        if (checkSquareAvailable()) {
-            board[row][column].playerMarker(player)
+        if(checkSquareAvailable()) {
+            board[row][column].playerMarker(player);
+            return true;
         } else {
-            console.log("Pick another square")
+            const message = document.querySelector('h2');
+            message.innerText = "Pick another square";
+            return false;
         }
     }
 
@@ -148,7 +151,6 @@ const gameController = (() => {
 
     // If someone has won or the game is tied, the game is over
     const gameOver = ()=> {
-        console.log("is gameover" + (winLose() || checkTie()));
         return winLose() || checkTie();
     };
 
@@ -196,24 +198,27 @@ const gameController = (() => {
         gameBoard.clearBoard();
         gameBoard.printBoard();
         displayController.clear();
-        displayController.activate();
+        displayController.activateBoard();
     };
 
     // Play a round of tictactoe
     const playRound = (row, column) => {
         if (!getIsGameActive()) {
-            displayController.deactivate();
+            displayController.deactivateBoard();
             return;
         }
-        gameBoard.addMarker(row, column, getCurrentPlayer())
-        gameBoard.printBoard();
-        switchPlayer();
-        updateGameStatus();
-        // console.log(gameOver());
-        if (gameOver()) {
-            console.log("Game Over");
-            return;
+        // Only proceed with the game if the player was able to add a marker successfully
+        if (gameBoard.addMarker(row, column, getCurrentPlayer())) {
+            gameBoard.printBoard();
+            switchPlayer();
+            updateGameStatus();
+            // console.log(gameOver());
+            if (gameOver()) {
+                console.log("Game Over");
+                return;
+            }
         }
+        
     };
 
     return {playRound, startGame}
@@ -252,19 +257,20 @@ const displayController = (() => {
     const startBtn = document.querySelector('.start');
     
     // Allow edits of gameboard divs
-    const activate = () => {
+    const activateBoard = () => {
         gameBoardDivs.forEach(div => {
             div.style.pointerEvents = 'auto';
         });
     };
 
     // Prevent gameboard divs from being edited
-    const deactivate = () => {
+    const deactivateBoard = () => {
         gameBoardDivs.forEach(div=> {
             div.style.pointerEvents = 'none';
         })
     };
 
+  
     // Clear gameboard divs
     const clear = () => {
         gameBoardDivs.forEach(div=> {
@@ -300,12 +306,13 @@ const displayController = (() => {
         })
     }
 
+
     renderBoard();
 
     return {
-        activate,
-        deactivate, 
-        clear
+        activateBoard,
+        deactivateBoard, 
+        clear,
     }
 
  })();
