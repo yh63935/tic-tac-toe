@@ -207,21 +207,21 @@ const gameController = (() => {
             displayController.deactivateBoard();
             return;
         }
+        let currentPlayer = getCurrentPlayer();
         // Only proceed with the game if the player was able to add a marker successfully
-        if (gameBoard.addMarker(row, column, getCurrentPlayer())) {
+        if (gameBoard.addMarker(row, column, currentPlayer)) {
             gameBoard.printBoard();
             switchPlayer();
             updateGameStatus();
-            // console.log(gameOver());
             if (gameOver()) {
-                console.log("Game Over");
+                displayController.displayResults(currentPlayer.getName());
                 return;
             }
         }
         
     };
 
-    return {playRound, startGame}
+    return {playRound, startGame, winLose}
 
 })();
 
@@ -236,26 +236,50 @@ function createPlayers() {
     players.push(playerOne);
     const playerTwo = createPlayer("PlayerTwo", "O");
     players.push(playerTwo)
+
+    addPlayerOneBtn.addEventListener("click", ()=> {
+        playerOne.addName(inputOne);
+    });
+ 
+    addPlayerTwoBtn.addEventListener("click", ()=> {
+        playerTwo.addName(inputTwo);
+    });
+ 
     return players;
 };
 
 // Create each individual player 
-function createPlayer(name, marker) {
+function createPlayer(playerInstance, marker) {
+    let name = "";
     let active = false;
     const toggleActive = ()=> {
         active = !active;
     }
     const getActiveStatus = () => {
         return active
-    }
-    return {name, marker, toggleActive, getActiveStatus }
+    };
+
+   const addName = (inputEl) => {
+        if(!name) {
+            name = inputEl.value;
+        } else {
+            displayController.displayWarning(`${playerInstance} has already been named as ${name}`);
+        }
+        // Clear input value after inserted
+        inputEl.value = "";
+    };
+
+    const getName = () => name;
+
+    return {addName, getName, marker, toggleActive, getActiveStatus }
 };
 
 // Display controller dislays game on user interface
 const displayController = (() => {
     const gameBoardDivs = document.querySelectorAll(".game-container > div");
     const startBtn = document.querySelector('.start');
-    
+    const resultEl = document.querySelector('h2');
+
     // Allow edits of gameboard divs
     const activateBoard = () => {
         gameBoardDivs.forEach(div => {
@@ -270,7 +294,23 @@ const displayController = (() => {
         })
     };
 
-  
+    const displayResults = (playerName) => {
+        let result = "";
+        if (gameController.winLose()) {
+            result = `${playerName} has won!`;
+        } else {
+            result = "Tied game! Play again to determine the real winner!"
+        }
+        resultEl.innerText = result;
+ 
+    };
+ 
+ 
+    const displayWarning = (warning) => {
+        const message = document.querySelector('h3');
+        message.innerText = warning;
+    }
+ 
     // Clear gameboard divs
     const clear = () => {
         gameBoardDivs.forEach(div=> {
@@ -313,6 +353,8 @@ const displayController = (() => {
         activateBoard,
         deactivateBoard, 
         clear,
+        displayResults, 
+        displayWarning
     }
 
  })();
