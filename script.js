@@ -124,7 +124,7 @@ const gameController = (() => {
     
         return players;
     };
-    const players = gameController.createPlayers();
+    const players = createPlayers();
 
     // Check if there is a win or lose
     const winLose = ()=> {
