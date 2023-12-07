@@ -28,8 +28,8 @@ const gameBoard = (() => {
             board[row][column].playerMarker(player);
             return true;
         } else {
-            const message = document.querySelector('h2');
-            message.innerText = "Pick another square";
+            displayController.displayMessage("Pick another square");
+            setTimeout(displayController.clearMessages, 2000);
             return false;
         }
     }
@@ -363,6 +363,7 @@ const displayController = (() => {
         deactivateBoard, 
         clearBoardInterface,
         clearMessages,
+        clearResults,
         displayResults, 
         displayMessage
     }
