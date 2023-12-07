@@ -67,15 +67,65 @@ const gameBoard = (() => {
 
 
 )();
-// Create new players
-const players = createPlayers();
 
 // Gamecontroller manages game logic
 const gameController = (() => {
     const board = gameBoard.getBoard();
-    
-    // Determines if the game is active or not
     let isGameActive = false;
+
+    // Create all players
+    function createPlayers() {
+        const inputOne = document.getElementById('player1');
+        const inputTwo = document.getElementById('player2');
+        const addPlayerOneBtn = document.querySelector('.add-player');
+        const addPlayerTwoBtn = document.querySelector('.add-player:nth-of-type(2)');
+        const players = [];
+
+        // Create each individual player 
+        const createPlayer = (playerInstance, marker) => {
+            let name = "";
+            let active = false;
+            const toggleActive = ()=> {
+                active = !active;
+            }
+            const getActiveStatus = () => {
+                return active
+            };
+
+        const addName = (inputEl) => {
+                if(!name) {
+                    name = inputEl.value;
+                } else {
+                    displayController.displayMessage(`${playerInstance} has already been named as ${name}`);
+                    setTimeout(displayController.clearMessages, 2000);
+                }
+                // Clear input value after inserted
+                inputEl.value = "";
+            };
+
+            const getName = () => name;
+
+
+            return {addName, getName, marker, toggleActive, getActiveStatus }
+        };
+
+        const playerOne = createPlayer("PlayerOne", "X")
+        players.push(playerOne);
+        const playerTwo = createPlayer("PlayerTwo", "O");
+        players.push(playerTwo)
+
+        addPlayerOneBtn.addEventListener("click", ()=> {
+            playerOne.addName(inputOne);
+        });
+    
+        addPlayerTwoBtn.addEventListener("click", ()=> {
+            playerTwo.addName(inputTwo);
+        });
+    
+        return players;
+    };
+    const players = gameController.createPlayers();
+
     // Check if there is a win or lose
     const winLose = ()=> {
 
@@ -226,55 +276,6 @@ const gameController = (() => {
 
 })();
 
-// Create all players
-function createPlayers() {
-    const inputOne = document.getElementById('player1');
-    const inputTwo = document.getElementById('player2');
-    const addPlayerOneBtn = document.querySelector('.add-player');
-    const addPlayerTwoBtn = document.querySelector('.add-player:nth-of-type(2)');
-    const players = [];
-    const playerOne = createPlayer("PlayerOne", "X")
-    players.push(playerOne);
-    const playerTwo = createPlayer("PlayerTwo", "O");
-    players.push(playerTwo)
-
-    addPlayerOneBtn.addEventListener("click", ()=> {
-        playerOne.addName(inputOne);
-    });
- 
-    addPlayerTwoBtn.addEventListener("click", ()=> {
-        playerTwo.addName(inputTwo);
-    });
- 
-    return players;
-};
-
-// Create each individual player 
-function createPlayer(playerInstance, marker) {
-    let name = "";
-    let active = false;
-    const toggleActive = ()=> {
-        active = !active;
-    }
-    const getActiveStatus = () => {
-        return active
-    };
-
-   const addName = (inputEl) => {
-        if(!name) {
-            name = inputEl.value;
-        } else {
-            displayController.displayMessage(`${playerInstance} has already been named as ${name}`);
-            setTimeout(displayController.clearMessages, 2000);
-        }
-        // Clear input value after inserted
-        inputEl.value = "";
-    };
-
-    const getName = () => name;
-
-    return {addName, getName, marker, toggleActive, getActiveStatus }
-};
 
 // Display controller dislays game on user interface
 const displayController = (() => {
