@@ -193,11 +193,12 @@ const gameController = (() => {
     // Start game and restarts game regardless of isGameActive state
     const startGame = () => {
         isGameActive = true;
-        console.log("startgame" + isGameActive)
         gameBoard.printBoard();
         gameBoard.clearBoard();
         gameBoard.printBoard();
-        displayController.clear();
+        displayController.clearBoardInterface();
+        displayController.clearResults();
+        displayController.clearMessages();
         displayController.activateBoard();
     };
 
@@ -263,7 +264,8 @@ function createPlayer(playerInstance, marker) {
         if(!name) {
             name = inputEl.value;
         } else {
-            displayController.displayWarning(`${playerInstance} has already been named as ${name}`);
+            displayController.displayMessage(`${playerInstance} has already been named as ${name}`);
+            setTimeout(displayController.clearMessages, 2000);
         }
         // Clear input value after inserted
         inputEl.value = "";
@@ -279,6 +281,8 @@ const displayController = (() => {
     const gameBoardDivs = document.querySelectorAll(".game-container > div");
     const startBtn = document.querySelector('.start');
     const resultEl = document.querySelector('h2');
+    const messageEl = document.querySelector('h3');
+
 
     // Allow edits of gameboard divs
     const activateBoard = () => {
@@ -306,22 +310,29 @@ const displayController = (() => {
     };
  
  
-    const displayWarning = (warning) => {
-        const message = document.querySelector('h3');
-        message.innerText = warning;
+    const displayMessage = (warning) => {
+        messageEl.innerText = warning;
     }
  
     // Clear gameboard divs
-    const clear = () => {
+    const clearBoardInterface = () => {
         gameBoardDivs.forEach(div=> {
             div.innerText = "";
         })
     }
 
+    const clearMessages = () => {
+        messageEl.innerText = "";
+    };
+
+    const clearResults = () => {
+        resultEl.innerText = "";
+    }
+
     startBtn.addEventListener("click", gameController.startGame);
 
     // Render board with player markers
-    const renderBoard = () => {
+    const renderBoard = (() => {
         (function getDivIndex() {
             gameBoardDivs.forEach((elem, i)=> {
                 elem.dataset.rowIndex = Math.floor(i/3)
@@ -344,17 +355,15 @@ const displayController = (() => {
                 div.innerText = gameBoard.getBoard()[div.dataset.rowIndex][div.dataset.colIndex].getValue();
             })
         })
-    }
-
-
-    renderBoard();
+    })();
 
     return {
         activateBoard,
         deactivateBoard, 
-        clear,
+        clearBoardInterface,
+        clearMessages,
         displayResults, 
-        displayWarning
+        displayMessage
     }
 
  })();
