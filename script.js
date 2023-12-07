@@ -363,6 +363,7 @@ const displayController = (() => {
         deactivateBoard, 
         clearBoardInterface,
         clearMessages,
+        clearResults,
         displayResults, 
         displayMessage
     }
