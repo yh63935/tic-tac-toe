@@ -92,21 +92,29 @@ const gameController = (() => {
                 return active
             };
 
-        const addName = (inputEl) => {
-                if(!name) {
-                    name = inputEl.value;
-                } else {
-                    displayController.displayMessage(`${playerInstance} has already been named as ${name}`);
-                    setTimeout(displayController.clearMessages, 2000);
-                }
-                // Clear input value after inserted
-                inputEl.value = "";
+            const resetPlayerName = () => {
+                name = "";
             };
+
+            const addName = (inputEl) => {
+                    if(!isGameActive) {
+                        displayController.clearResults();
+                        displayController.displayMessage(`Press the start button first to start the game`);
+                        setTimeout(displayController.clearMessages, 500);
+                    } else if(!name) {
+                        name = inputEl.value;
+                    } else {
+                        displayController.displayMessage(`${playerInstance} has already been named as ${name}`);
+                        setTimeout(displayController.clearMessages, 2000);
+                    }
+                    // Clear input value after inserted
+                    inputEl.value = "";
+                };
 
             const getName = () => name;
 
 
-            return {addName, getName, marker, toggleActive, getActiveStatus }
+            return {addName, getName, marker, toggleActive, getActiveStatus, resetPlayerName }
         };
 
         const playerOne = createPlayer("PlayerOne", "X")
@@ -126,6 +134,9 @@ const gameController = (() => {
     };
     const players = createPlayers();
 
+    const resetPlayerNames = () => {
+        players.forEach(player => player.resetPlayerName())
+    }
     // Check if there is a win or lose
     const winLose = ()=> {
 
@@ -243,6 +254,7 @@ const gameController = (() => {
     // Start game and restarts game regardless of isGameActive state
     const startGame = () => {
         isGameActive = true;
+        resetPlayerNames();
         gameBoard.printBoard();
         gameBoard.clearBoard();
         gameBoard.printBoard();
@@ -329,6 +341,7 @@ const displayController = (() => {
     const clearResults = () => {
         resultEl.innerText = "";
     }
+
 
     startBtn.addEventListener("click", gameController.startGame);
 
